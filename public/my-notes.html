@@ -76,23 +76,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   <script>
-    Polymer({
-      is: 'my-notes',
-      properties: {
-        notes: {
-          type: Object
+    class MyNotes extends Polymer.Element {
+
+        static get is() {
+            return 'my-notes';
         }
-      },
-      add: function() {
-        this.$.query.ref.push({
-          content: this.$.input.value
-        });
-        this.$.input.value = null;
-      },
-      remove: function(e) {
-        var key = e.currentTarget.note.$key;
-        this.$.query.ref.child(key).remove();
-      }
-    });
+
+        static get config() {
+            return {
+                properties: {
+                    notes: {
+                        type: Object
+                    }
+                }
+            }
+        }
+
+        add() {
+            this.$.query.ref.push({
+                content: this.$.input.value
+            });
+            this.$.input.value = null;
+        }
+
+        remove(e) {
+            const key = e.currentTarget.note.$key;
+            this.$.query.ref.child(key).remove();
+        }
+    }
+
+    // Register custom element definition using standard platform API
+    customElements.define(MyNotes.is, MyNotes);
+
   </script>
 </dom-module>

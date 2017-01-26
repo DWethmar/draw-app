@@ -1,0 +1,28 @@
+[debug] ----------------------------------------------------------------------
+[debug] Command:      /home/dwethmar/Applications/node-v6.9.2-linux-x64/bin/node /home/dwethmar/Applications/node/bin/firebase serve
+[debug] CLI Version:  3.2.1
+[debug] Platform:     linux
+[debug] Node Version: v6.9.2
+[debug] Time:         Wed Jan 25 2017 11:53:04 GMT+0100 (CET)
+[debug] ----------------------------------------------------------------------
+[debug] 
+[info] Starting Firebase development server...
+[info] 
+[info] Project Directory: /home/dwethmar/Projects/draw-app
+[info] Public Directory: public
+[info] 
+[info] Server listening at: http://localhost:5000
+[debug] ----------------------------------------------------------------------
+[debug] Command:      /home/dwethmar/Applications/node-v6.9.2-linux-x64/bin/node /home/dwethmar/Applications/node/bin/firebase serve
+[debug] CLI Version:  3.2.1
+[debug] Platform:     linux
+[debug] Node Version: v6.9.2
+[debug] Time:         Wed Jan 25 2017 14:47:53 GMT+0100 (CET)
+[debug] ----------------------------------------------------------------------
+[debug] 
+[info] Starting Firebase development server...
+[info] 
+[info] Project Directory: /home/dwethmar/Projects/draw-app
+[info] Public Directory: public
+[info] 
+[info] Server listening at: http://localhost:5000

@@ -4,6 +4,6 @@
   "extraDependencies": [
     "public/manifest.json",
     "public/firebase-messaging-sw.js",
-    "public/bower_components/webcomponentsjs/webcomponents-lite.min.js"
+    "public/bower_components/webcomponentsjs/webcomponents-lite.js"
   ]
 }

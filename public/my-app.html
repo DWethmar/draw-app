@@ -1,7 +1,9 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
 <link rel="import" href="bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="my-login.html">
 <link rel="import" href="my-notes.html">
 <link rel="import" href="my-subscription.html">
+<link rel="import" href="grid-canvas.html">
 
 <dom-module id="my-app">
 
@@ -16,6 +18,8 @@
       }
     </style>
 
+    Ok
+
     <!-- IMPORTANT: The firebase-app element needs to appear before any
          other firebase-* elements -->
     <firebase-app
@@ -27,20 +31,31 @@
     </firebase-app>
 
     <header>
-      <my-login></my-login>      
+      <my-login></my-login>
     </header>
 
     <main>
       <my-notes></my-notes>
       <my-subscription></my-subscription>
+
+      <grid-canvas></grid-canvas>
     </main>
 
   </template>
 
   <script>
-    Polymer({
-      is: 'my-app'
-    });
+    class MyApp extends Polymer.Element {
+        static get is() {
+            return 'my-app';
+        }
+
+        static get config() {
+            return { }
+        }
+    }
+
+    // Register custom element definition using standard platform API
+    customElements.define(MyApp.is, MyApp);
   </script>
 
 </dom-module>

@@ -1,3 +1,4 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
 <link rel="import" href="bower_components/polymerfire/firebase-auth.html">
 <link rel="import" href="bower_components/paper-button/paper-button.html">
 
@@ -37,23 +38,36 @@
   </template>
 
   <script>
-    Polymer({
-      is: 'my-login',
-      properties: {
-        user: {
-          type: Object
-        },
-        statusKnown: {
-          type: Object
-        }
-      },
-      login: function() {
-        return this.$.auth.signInWithPopup();
-      },
-      logout: function() {
-        return this.$.auth.signOut();
+      class MyLogin extends Polymer.Element {
+
+          static get is() {
+              return 'my-login';
+          }
+
+          static get config() {
+              return {
+                  properties: {
+                      user: {
+                          type: Object
+                      },
+                      statusKnown: {
+                          type: Object
+                      }
+                  }
+              }
+          }
+
+          login() {
+            return this.$.auth.signInWithPopup();
+          }
+
+          logout() {
+              return this.$.auth.signOut();
+          }
       }
-    });
+
+      // Register custom element definition using standard platform API
+      customElements.define(MyLogin.is, MyLogin);
   </script>
 
 </dom-module>

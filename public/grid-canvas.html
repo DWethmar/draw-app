@@ -1,0 +1,158 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+
+<dom-module id="grid-canvas">
+
+    <template>
+        <style>
+            #canvas.drawing{
+                border: 1px solid black;
+                background: grey;
+            }
+        </style>
+        <canvas id="canvas"></canvas>
+    </template>
+
+    <script>
+
+        class Point {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+        }
+
+        class GridCanvas extends Polymer.Element {
+
+            static get is() {
+                return 'grid-canvas';
+            }
+
+            static get config() {
+                return {
+                    properties: {
+                        color: {
+                            type: Object
+                        },
+                    }
+                }
+            }
+
+            constructor() {
+                super();
+            }
+
+            connectedCallback() {
+                this.cellsX = 16;
+                this.cellsY = 16;
+                this.cellsSize = 20;
+
+                this.ctx = this.$.canvas.getContext('2d');
+                this.drawGrid(this.ctx);
+
+                this.isDrawing = false;
+                this.timer = undefined;
+
+                this.previousPoint = undefined;
+
+                const startDrawing = (e) => {
+                    this.IsDrawing = true;
+                    this.$.canvas.classList.add("drawing");
+                };
+                this.$.canvas.addEventListener('mousedown', startDrawing);
+
+                const draw = (e) => {
+                    if (this.IsDrawing) {
+                        const currentPoint = new Point(
+                            Math.floor(e.offsetX / this.cellsSize),
+                            Math.floor(e.offsetY / this.cellsSize)
+                        );
+
+                        if (!this.previousPoint) {
+                            this.previousPoint = currentPoint;
+                        }
+
+                        const points = this.supercoverLine(currentPoint, this.previousPoint);
+
+                        points.forEach((point) => {
+                            this.drawCell(point)
+                        });
+
+                        this.previousPoint = currentPoint;
+                    }
+                };
+                this.$.canvas.addEventListener('mousemove', draw);
+                this.$.canvas.addEventListener('mousedown', draw);
+
+                const stopDrawing = (e) => {
+                    this.IsDrawing = false;
+                    this.previousPoint = undefined;
+                    this.$.canvas.classList.remove("drawing");
+                };
+                document.addEventListener('mouseup', stopDrawing);
+            }
+
+            drawGrid(ctx) {
+                this.$.canvas.width = this.cellsX * this.cellsSize;
+                this.$.canvas.height = this.cellsY * this.cellsSize;
+
+                ctx.strokeStyle = '#000000';
+                ctx.strokeWidth = 1;
+
+                ctx.beginPath();
+
+                for (let x = 1; x < this.cellsX; x++) {
+                    ctx.moveTo(x * this.cellsSize, 0);
+                    ctx.lineTo(x * this.cellsSize, this.cellsX * this.cellsSize);
+                    ctx.stroke();
+                }
+
+                for (let y = 1; y < this.cellsY; y++) {
+                    ctx.moveTo(0, y * this.cellsSize);
+                    ctx.lineTo(this.cellsY * this.cellsSize, y * this.cellsSize);
+                    ctx.stroke();
+                }
+
+                ctx.closePath();
+            }
+
+            drawCell(point, color) {
+                this.ctx.rect(point.x * this.cellsSize, point.y * this.cellsSize, this.cellsSize, this.cellsSize);
+                this.ctx.fill();
+            }
+
+            // http://www.redblobgames.com/grids/line-drawing.html
+            supercoverLine(p0, p1) {
+                const dx = p1.x-p0.x, dy = p1.y-p0.y;
+                const nx = Math.abs(dx), ny = Math.abs(dy);
+                const sign_x = dx > 0? 1 : -1, sign_y = dy > 0? 1 : -1;
+
+                const p = new Point(p0.x, p0.y);
+                const points = [new Point(p.x, p.y)];
+                for (var ix = 0, iy = 0; ix < nx || iy < ny;) {
+                    if ((0.5+ix) / nx == (0.5+iy) / ny) {
+                        // next step is diagonal
+                        p.x += sign_x;
+                        p.y += sign_y;
+                        ix++;
+                        iy++;
+                    } else if ((0.5+ix) / nx < (0.5+iy) / ny) {
+                        // next step is horizontal
+                        p.x += sign_x;
+                        ix++;
+                    } else {
+                        // next step is vertical
+                        p.y += sign_y;
+                        iy++;
+                    }
+                    points.push(new Point(p.x, p.y));
+                }
+                return points;
+            }
+
+        }
+
+        // Register custom element definition using standard platform API
+        customElements.define(GridCanvas.is, GridCanvas);
+    </script>
+
+</dom-module>
