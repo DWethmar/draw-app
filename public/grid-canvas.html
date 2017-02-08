@@ -4,9 +4,8 @@
 
     <template>
         <style>
-            #canvas.drawing{
-                border: 1px solid black;
-                background: grey;
+            :host {
+                display: inline-block;
             }
         </style>
         <canvas id="canvas"></canvas>
@@ -30,8 +29,21 @@
             static get config() {
                 return {
                     properties: {
+                        cellsX: {
+                            type: Number,
+                            value: 10
+                        },
+                        cellsY: {
+                            type: Number,
+                            value: 10
+                        },
+                        cellSize: {
+                            type: Number,
+                            value: 10
+                        },
                         color: {
-                            type: Object
+                            type: String,
+                            value: '#000000'
                         },
                     }
                 }
@@ -42,100 +54,76 @@
             }
 
             connectedCallback() {
-                this.cellsX = 16;
-                this.cellsY = 16;
-                this.cellsSize = 20;
-
-                this.ctx = this.$.canvas.getContext('2d');
-                this.drawGrid(this.ctx);
-
-                this.isDrawing = false;
-                this.timer = undefined;
-
-                this.previousPoint = undefined;
-
-                const startDrawing = (e) => {
-                    this.IsDrawing = true;
-                    this.$.canvas.classList.add("drawing");
-                };
-                this.$.canvas.addEventListener('mousedown', startDrawing);
-
-                const draw = (e) => {
-                    if (this.IsDrawing) {
-                        const currentPoint = new Point(
-                            Math.floor(e.offsetX / this.cellsSize),
-                            Math.floor(e.offsetY / this.cellsSize)
-                        );
-
-                        if (!this.previousPoint) {
-                            this.previousPoint = currentPoint;
-                        }
-
-                        const points = this.supercoverLine(currentPoint, this.previousPoint);
-
-                        points.forEach((point) => {
-                            this.drawCell(point)
-                        });
-
-                        this.previousPoint = currentPoint;
-                    }
-                };
-                this.$.canvas.addEventListener('mousemove', draw);
-                this.$.canvas.addEventListener('mousedown', draw);
-
-                const stopDrawing = (e) => {
-                    this.IsDrawing = false;
-                    this.previousPoint = undefined;
-                    this.$.canvas.classList.remove("drawing");
-                };
-                document.addEventListener('mouseup', stopDrawing);
+                this.$.canvas.width     = this.cellsX * this.cellSize;
+                this.$.canvas.height    = this.cellsY * this.cellSize;
             }
 
-            drawGrid(ctx) {
-                this.$.canvas.width = this.cellsX * this.cellsSize;
-                this.$.canvas.height = this.cellsY * this.cellsSize;
-
-                ctx.strokeStyle = '#000000';
-                ctx.strokeWidth = 1;
+            drawGrid() {
+                const ctx = this.$.canvas.getContext("2d");
+                //ctx.strokeStyle = '#000000';
+                ctx.strokeWidth = 5;
 
                 ctx.beginPath();
 
                 for (let x = 1; x < this.cellsX; x++) {
-                    ctx.moveTo(x * this.cellsSize, 0);
-                    ctx.lineTo(x * this.cellsSize, this.cellsX * this.cellsSize);
+                    ctx.moveTo(x * this.cellSize, 0);
+                    ctx.lineTo(x * this.cellSize, this.cellsX * this.cellSize);
                     ctx.stroke();
                 }
 
                 for (let y = 1; y < this.cellsY; y++) {
-                    ctx.moveTo(0, y * this.cellsSize);
-                    ctx.lineTo(this.cellsY * this.cellsSize, y * this.cellsSize);
+                    ctx.moveTo(0, y * this.cellSize);
+                    ctx.lineTo(this.cellsY * this.cellSize, y * this.cellSize);
                     ctx.stroke();
                 }
 
                 ctx.closePath();
             }
 
-            drawCell(point, color) {
-                this.ctx.rect(point.x * this.cellsSize, point.y * this.cellsSize, this.cellsSize, this.cellsSize);
-                this.ctx.fill();
+            drawPoint(point) {
+                const ctx = this.$.canvas.getContext("2d");
+                const d_x = point.x * this.cellSize;
+                const d_y = point.y * this.cellSize;
+
+                if (this.color == undefined) {
+                    ctx.clearRect(d_x, d_y, this.cellSize, this.cellSize);
+                    return;
+                }
+
+                ctx.fillStyle = this.color;
+                ctx.rect(d_x, d_y, this.cellSize, this.cellSize);
+                ctx.fill();
+            }
+
+            drawLine(pointA, pointB) {
+                const points = this.supercoverLine(pointA, pointB);
+                points.forEach((point) => {
+                    this.drawPoint(point)
+                });
+                return points;
+            }
+
+            clear() {
+                const ctx = this.$.canvas.getContext("2d");
+                ctx.clearRect(0, 0, this.$.canvas.width, this.$.canvas.height);
             }
 
             // http://www.redblobgames.com/grids/line-drawing.html
             supercoverLine(p0, p1) {
-                const dx = p1.x-p0.x, dy = p1.y-p0.y;
+                const dx = p1.x - p0.x, dy = p1.y - p0.y;
                 const nx = Math.abs(dx), ny = Math.abs(dy);
                 const sign_x = dx > 0? 1 : -1, sign_y = dy > 0? 1 : -1;
 
                 const p = new Point(p0.x, p0.y);
                 const points = [new Point(p.x, p.y)];
-                for (var ix = 0, iy = 0; ix < nx || iy < ny;) {
-                    if ((0.5+ix) / nx == (0.5+iy) / ny) {
+                for (let ix = 0, iy = 0; ix < nx || iy < ny;) {
+                    if ((0.5 + ix) / nx == (0.5 + iy) / ny) {
                         // next step is diagonal
                         p.x += sign_x;
                         p.y += sign_y;
                         ix++;
                         iy++;
-                    } else if ((0.5+ix) / nx < (0.5+iy) / ny) {
+                    } else if ((0.5 + ix) / nx < (0.5 + iy) / ny) {
                         // next step is horizontal
                         p.x += sign_x;
                         ix++;
@@ -150,8 +138,6 @@
             }
 
         }
-
-        // Register custom element definition using standard platform API
         customElements.define(GridCanvas.is, GridCanvas);
     </script>
 

@@ -3,7 +3,9 @@
 <link rel="import" href="my-login.html">
 <link rel="import" href="my-notes.html">
 <link rel="import" href="my-subscription.html">
-<link rel="import" href="grid-canvas.html">
+<link rel="import" href="grid-editor.html">
+
+<!--<link rel="import" href="bower_components/paper-toggle-button/paper-toggle-button.html">-->
 
 <dom-module id="my-app">
 
@@ -18,7 +20,9 @@
       }
     </style>
 
-    Ok
+    <!--<div>-->
+      <!--<paper-toggle-button></paper-toggle-button>-->
+    <!--</div>-->
 
     <!-- IMPORTANT: The firebase-app element needs to appear before any
          other firebase-* elements -->
@@ -38,7 +42,7 @@
       <my-notes></my-notes>
       <my-subscription></my-subscription>
 
-      <grid-canvas></grid-canvas>
+      <grid-editor></grid-editor>
     </main>
 
   </template>

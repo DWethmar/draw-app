@@ -1,0 +1,144 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+<link rel="import" href="grid-canvas.html">
+
+<dom-module id="grid-editor">
+
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+            #gridcanvas {
+                background: lightcoral;
+                border: 1px solid black;
+            }
+            #gridcanvas.drawing{
+                box-shadow:0 0 1px 1px #102447;
+                cursor: pointer;
+            }
+        </style>
+        <grid-canvas
+                id="gridcanvas"
+                cells-x="{{cellsX}}"
+                cells-y="{{cellsY}}"
+                cell-size="{{cellSize}}"
+                color="{{color}}"
+        ></grid-canvas>
+    </template>
+
+    <script>
+
+        class GridEditor extends Polymer.Element {
+
+            static get is() {
+                return 'grid-editor';
+            }
+
+            constructor() {
+                super();
+
+                this.cellsX = 16;
+                this.cellsY = 16;
+                this.cellSize = 20;
+                this.history = [];
+                this.newChanges = [];
+
+                this.color = '#000000';
+            }
+
+            connectedCallback() {
+                const grid = this.$.gridcanvas;
+
+                const startDrawing = () => {
+                    this.isDrawing = true;
+                    grid.classList.add("drawing");
+                };
+
+                const draw = (e) => {
+                    if (this.isDrawing) {
+                        const currentPoint = new Point(
+                            Math.floor(e.offsetX / this.cellSize),
+                            Math.floor(e.offsetY / this.cellSize)
+                        );
+
+                        if (!this.previousPoint) {
+                            this.previousPoint = currentPoint;
+                        }
+
+                        const points = grid.drawLine(this.previousPoint, currentPoint);
+
+                        for (let point of points) {
+                            const i = point.y * this.cellsX + point.x;
+                            this.newChanges[i] = this.color;
+                        }
+
+                        grid.drawGrid();
+
+                        this.previousPoint = currentPoint;
+                    }
+                };
+
+                const stopDrawing = () => {
+                    this.isDrawing = false;
+                    this.previousPoint = undefined;
+
+                    if (this.newChanges.length) {
+                        let prevSet = [];
+                        if (this.history.length) {
+                            prevSet = this.history[this.history.length - 1]
+                        }
+                        this.history.push(prevSet.concat(this.newChanges));
+                    }
+                    this.newChanges = [];
+
+                   grid.classList.remove("drawing");
+                };
+
+                this.addEventListener('mousedown', startDrawing);
+                this.addEventListener('mousemove', draw);
+                this.addEventListener('mousedown', draw);
+                document.addEventListener('mouseup', stopDrawing);
+
+                document.addEventListener('keydown', (e) => {
+                    console.log(this.history);
+
+                    if (e.keyCode == 90 && e.ctrlKey) {
+                        this.revertChange();
+                    }
+                });
+            }
+
+            revertChange() {
+                const grid = this.$.gridcanvas;
+                grid.clear();
+
+                if (!this.history.length) {
+                    return;
+                }
+
+                this.history.pop();
+                let changes = this.history[this.history.length - 1];
+
+                for(let i in changes) {
+
+                    const x = Math.floor(parseInt(i) % this.cellsX);    // % is the "modulo operator", the remainder of i / width;
+                    const y = Math.floor(parseInt(i) / this.cellsX);    // where "/" is an integer division
+
+                    const dsx = i % this.cellsX;    // % is the "modulo operator", the remainder of i / width;
+                    const dsy = i / this.cellsX;
+
+                    this.color = changes[i];
+                    grid.drawPoint(new Point(x, y));
+                }
+
+                grid.drawGrid();
+
+                console.log(this.history);
+            }
+        }
+
+        // Register custom element definition using standard platform API
+        customElements.define(GridEditor.is, GridEditor);
+    </script>
+
+</dom-module>
